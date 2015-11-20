@@ -1,0 +1,4 @@
+"STARTUP.obj",
+"main.obj" 
+TO "Recoder_keil" 
+RAMSIZE(256) 
