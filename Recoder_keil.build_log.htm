@@ -10,10 +10,23 @@ Project File Date:  11/20/2015
 Rebuild target 'Target 1'
 assembling STARTUP.A51...
 compiling main.c...
+compiling usart.c...
+compiling adc.c...
 linking...
-Program Size: data=9.0 xdata=0 code=16
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_GETADCRESULT_AV?ADC
+Program Size: data=60.2 xdata=512 code=1562
 creating hex file from "Recoder_keil"...
-"Recoder_keil" - 0 Error(s), 0 Warning(s).
+"Recoder_keil" - 0 Error(s), 1 Warning(s).
 </pre>
 </body>
 </html>
+ODULE:  main.obj (MAIN)
+    ADDRESS: 000AH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _GETADCRESULT
+    MODULE:  main.obj (MAIN)
+    ADDRESS: 000FH
+Program Size: data=58.2 xdata=512 code=1321
+creating hex file from "Recoder_keil"...
+"Recoder_keil" - 0 Error(s), 4 Warning(s).

@@ -64,7 +64,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="adc.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="usart.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="adc.h" />
+    <ClInclude Include="usart.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

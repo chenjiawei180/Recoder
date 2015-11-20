@@ -1,4 +1,6 @@
 "STARTUP.obj",
-"main.obj" 
+"main.obj",
+"usart.obj",
+"adc.obj" 
 TO "Recoder_keil" 
 RAMSIZE(256) 
