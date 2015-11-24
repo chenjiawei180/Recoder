@@ -24,12 +24,18 @@
     <ClCompile Include="adc.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="wch372.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="usart.h">
       <Filter>源文件</Filter>
     </ClInclude>
     <ClInclude Include="adc.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="wch372.h">
       <Filter>源文件</Filter>
     </ClInclude>
   </ItemGroup>

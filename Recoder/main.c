@@ -1,6 +1,7 @@
 #include "STC12C5A60S2.H"
 #include "usart.h"
 #include "adc.h"
+#include "wch372.h"
 
 void main(void)
 {
@@ -8,6 +9,7 @@ void main(void)
 
 	usart_init();
 	InitADC();
+	ch372_init();
 	
 	while (1)
 	{

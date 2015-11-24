@@ -1,0 +1,239 @@
+C51 COMPILER V9.00   WCH372                                                                11/24/2015 16:05:32 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE WCH372
+OBJECT MODULE PLACED IN wch372.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Recoder\wch372.c LARGE BROWSE INCDIR(.\Recoder) DEBUG OBJECTEXTEND PRINT(.\
+                    -wch372.lst) TABS(2) OBJECT(wch372.obj)
+
+line level    source
+
+   1          #include "wch372.h"
+   2          
+   3          unsigned char length, i;//¶¨ÒåÊý¾Ý³¤¶ÈºÍÊý¾ÝÎ»Êý//
+   4          unsigned char IntStaus;//¶¨ÒåÖÐ¶Ï×´Ì¬//
+   5          unsigned char buffer[64];//Êý¾ÝÊý×é//
+   6          
+   7          /*------------------------------------------------
+   8          ÖÐ¶Ï·þÎñ³ÌÐò
+   9          ------------------------------------------------*/
+  10          void wch372_interrupt()  interrupt 0
+  11          {
+  12   1      
+  13   1        ch372_wr_cmd_port(CMD_GET_STATUS);//»ñÈ¡ÖÐ¶Ï×´Ì¬//
+  14   1        IntStaus = ch372_rd_dat_port();//¶ÁÈ¡Ð¾Æ¬ÖÐ¶Ï×´Ì¬//
+  15   1        CH372_INT = 1;
+  16   1        switch (IntStaus)
+  17   1        {
+  18   2          case USB_INT_EP2_OUT://usbÊä³öÊý¾Ý//
+  19   2            ch372_wr_cmd_port(CMD_RD_USB_DATA);//µ¥Æ¬»úÏòch372Ð´Èë¶ÁÈ¡usb½Ó¿ÚÊý¾ÝµÄÃüÁî//
+  20   2            length = ch372_rd_dat_port();//»ñÈ¡ºóÐøÊý¾Ý³¤¶È//
+  21   2            for(i = 0; i < length; i++)
+  22   2            {
+  23   3              buffer[i] = ch372_rd_dat_port();//°´ÕÕ»ñµÃµÄÊý¾ÝÎ»Êý£¬½«Êý¾Ý´æÈëbuffer[i]//
+  24   3            }   
+  25   2      
+  26   2            ch372_wr_cmd_port(CMD_WR_USB_DATA5);//µ¥Æ¬»úÏòch372Ð´ÈëÏòusbÐ´ÈëÊý¾ÝµÄÃüÁî//
+  27   2            ch372_wr_dat_port(length);//¸æËßpcÊý¾Ý³¤¶È//
+  28   2            for(i = 0; i<length; i++)
+  29   2            {
+  30   3              ch372_wr_dat_port(buffer[i]);
+  31   3            }
+  32   2      
+  33   2      
+  34   2          //pc»úÑéÖ¤Êý¾ÝµÄÕýÈ·ÐÔ//
+  35   2          //   wch372_send1byte(0x09,0x01);
+  36   2          //s_linenum_p = 1;
+  37   2            delay50ms();
+  38   2      
+  39   2          ch372_wr_cmd_port(CMD_UNLOCK_USB);
+  40   2          break;
+  41   2        case USB_INT_EP2_IN://usbÊäÈëÊý¾Ý//
+  42   2          ch372_wr_cmd_port(CMD_UNLOCK_USB);//ÊÍ·Åusb»º³åÇø//
+  43   2          break;
+  44   2        default:
+  45   2          ch372_wr_cmd_port(CMD_UNLOCK_USB);//ÊÍ·Åusb»º³åÇø//
+  46   2          break;
+  47   2        }
+  48   1      }
+  49          
+  50          
+  51          /*------------------------------------------------
+  52          CH372³õÊ¼»¯×Óº¯Êý
+  53          ------------------------------------------------*/
+  54          void ch372_init()
+C51 COMPILER V9.00   WCH372                                                                11/24/2015 16:05:32 PAGE 2   
+
+  55          {
+  56   1      
+  57   1        unsigned char i;/* ??CH375??????,????,????? */
+  58   1        P4SW |= 0x10; //ÉèÖÃP4.4ÎªÆÕÍ¨IO¿Ú
+  59   1        delay50ms();
+  60   1      
+  61   1        ch372_wr_cmd_port(CMD_CHECK_EXIST);  /* ??CH375?????? */
+  62   1        ch372_wr_dat_port(0x55);  /* ?????? */
+  63   1        i = ~0x55;  /* ????????????? */
+  64   1        if (ch372_rd_dat_port() != i)
+  65   1        {
+  66   2          for (i = 80; i != 0; i--)
+  67   2          {
+  68   3            ch372_wr_cmd_port(CMD_RESET_ALL);  /* ???????,?????? */
+  69   3            ch372_rd_dat_port();
+  70   3          }
+  71   2          ch372_wr_cmd_port(0);
+  72   2          delay50ms();  /* ??50ms */
+  73   2        }
+  74   1        ch372_wr_cmd_port(CMD_SET_USB_MODE);
+  75   1        ch372_wr_dat_port(2);  /* ??????????USB???? */
+  76   1        for (i = 100; i != 0; i--)
+  77   1        {
+  78   2          if (ch372_rd_dat_port() == CMD_RET_SUCCESS) break;
+  79   2        }
+  80   1      
+  81   1        IT0 = 0;  /* ??????????? */
+  82   1        IE0 = 0;  /* ????? */
+  83   1        EX0 = 1;  /* ??CH372?? */
+  84   1        EA = 1;  /* ÔÊÐíÖÐ¶Ï */
+  85   1      }
+  86          
+  87          
+  88          /*------------------------------------------------
+  89          CH372Ð´ÃüÁî×Óº¯Êý
+  90          ------------------------------------------------*/
+  91          void ch372_wr_cmd_port(unsigned char cmd)   /* ÏòCH375µÄÃüÁî¶Ë¿ÚÐ´ÈëÃüÁî,ÖÜÆÚ²»Ð¡ÓÚ4uS,Èç¹ûµ¥Æ¬»ú½Ï¿ìÔòÑÓÊ
+             -± */
+  92          {
+  93   1        P2M1 = 0x00;
+  94   1        P2M0 = 0xff;
+  95   1        CH372_A0 = 0;
+  96   1        CH372_WR = 1;
+  97   1        CH372_RD = 1;
+  98   1        CH372_CS = 1;
+  99   1      
+ 100   1      
+ 101   1        CH372_A0 = 1;
+ 102   1        CH372_RD = 1;
+ 103   1        CH372_WR = 0;
+ 104   1        CH372_CS = 0;
+ 105   1        CH372_CMD_PORT = cmd;
+ 106   1      
+ 107   1      
+ 108   1      
+ 109   1      
+ 110   1        CH372_WR = 1;
+ 111   1        CH372_RD = 1;
+ 112   1        CH372_A0 = 0;
+ 113   1        CH372_CS = 1;
+ 114   1      
+ 115   1      
+C51 COMPILER V9.00   WCH372                                                                11/24/2015 16:05:32 PAGE 3   
+
+ 116   1      
+ 117   1      }
+ 118          /*------------------------------------------------
+ 119          CH372Ð´ÈëÊý¾Ý×Óº¯Êý
+ 120          ------------------------------------------------*/
+ 121          
+ 122          void ch372_wr_dat_port(unsigned char dat)
+ 123          {
+ 124   1        P2M1 = 0x00;
+ 125   1        P2M0 = 0xff;
+ 126   1        CH372_A0 = 0;
+ 127   1        CH372_WR = 1;
+ 128   1        CH372_RD = 1;
+ 129   1        CH372_CS = 1;
+ 130   1      
+ 131   1      
+ 132   1        CH372_CMD_PORT = dat;
+ 133   1        CH372_RD = 1;
+ 134   1        CH372_WR = 0;
+ 135   1        CH372_CS = 0;
+ 136   1      
+ 137   1      
+ 138   1        CH372_WR = 1;
+ 139   1        CH372_RD = 1;
+ 140   1        CH372_A0 = 0;
+ 141   1        CH372_CS = 1;
+ 142   1      }
+ 143          /*------------------------------------------------
+ 144          CH372¶ÁÈ¡Êý¾Ý×Óº¯Êý
+ 145          ------------------------------------------------*/
+ 146          
+ 147          unsigned char ch372_rd_dat_port(void)
+ 148          {
+ 149   1        unsigned char dat;
+ 150   1      
+ 151   1        P2M1 = 0xff;
+ 152   1        P2M0 = 0x00;
+ 153   1      
+ 154   1        CH372_A0 = 0;
+ 155   1        CH372_WR = 1;
+ 156   1        CH372_RD = 1;
+ 157   1        CH372_CS = 1;
+ 158   1      
+ 159   1      
+ 160   1        CH372_WR = 1;
+ 161   1        CH372_RD = 0;
+ 162   1        CH372_CS = 0;
+ 163   1        dat = CH372_CMD_PORT;
+ 164   1      
+ 165   1      
+ 166   1      
+ 167   1      
+ 168   1        CH372_WR = 1;
+ 169   1        CH372_RD = 1;
+ 170   1        CH372_A0 = 0;
+ 171   1        CH372_CS = 1;
+ 172   1        return(dat);
+ 173   1      }
+ 174          
+ 175          void wch372_send1byte(unsigned char function, unsigned char uesrdata)
+ 176          {
+ 177   1        ch372_wr_cmd_port(CMD_WR_USB_DATA5);//µ¥Æ¬»úÏòch372Ð´ÈëÏòusbÐ´ÈëÊý¾ÝµÄÃüÁî//
+C51 COMPILER V9.00   WCH372                                                                11/24/2015 16:05:32 PAGE 4   
+
+ 178   1        ch372_wr_dat_port(7);//¸æËßpcÊý¾Ý³¤¶È//
+ 179   1        ch372_wr_dat_port(0x55);//pc»úÑéÖ¤Êý¾ÝµÄÕýÈ·ÐÔ//
+ 180   1        ch372_wr_dat_port(0x02);
+ 181   1        ch372_wr_dat_port(0x55);
+ 182   1        ch372_wr_dat_port(function);
+ 183   1        ch372_wr_dat_port(uesrdata);
+ 184   1        ch372_wr_dat_port(function + uesrdata);
+ 185   1        ch372_wr_dat_port(0x16);
+ 186   1      }
+ 187          
+ 188          void wch372_send2byte(unsigned char function, unsigned char uesrdata1, unsigned char uesrdata2)
+ 189          {
+ 190   1        ch372_wr_cmd_port(CMD_WR_USB_DATA5);//µ¥Æ¬»úÏòch372Ð´ÈëÏòusbÐ´ÈëÊý¾ÝµÄÃüÁî//
+ 191   1        ch372_wr_dat_port(8);//¸æËßpcÊý¾Ý³¤¶È//
+ 192   1        ch372_wr_dat_port(0x55);//pc»úÑéÖ¤Êý¾ÝµÄÕýÈ·ÐÔ//
+ 193   1        ch372_wr_dat_port(0x03);
+ 194   1        ch372_wr_dat_port(0x55);
+ 195   1        ch372_wr_dat_port(function);
+ 196   1        ch372_wr_dat_port(uesrdata1);
+ 197   1        ch372_wr_dat_port(uesrdata2);
+ 198   1        ch372_wr_dat_port(function + uesrdata1 + uesrdata2);
+ 199   1        ch372_wr_dat_port(0x16);
+ 200   1      }
+ 201          
+ 202          void delay50ms()
+ 203          {
+ 204   1        unsigned char a, b, c;
+ 205   1        for (c = 123; c>0; c--)
+ 206   1        for (b = 116; b>0; b--)
+ 207   1        for (a = 9; a>0; a--);
+ 208   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    498    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     67       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

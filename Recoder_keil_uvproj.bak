@@ -370,6 +370,21 @@
               <FileType>1</FileType>
               <FilePath>.\Recoder\main.c</FilePath>
             </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Recoder\usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Recoder\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>wch372.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Recoder\wch372.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
