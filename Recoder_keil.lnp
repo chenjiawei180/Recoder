@@ -2,6 +2,7 @@
 "main.obj",
 "usart.obj",
 "adc.obj",
-"wch372.obj" 
+"wch372.obj",
+"pcm1801.obj" 
 TO "Recoder_keil" 
 RAMSIZE(256) 

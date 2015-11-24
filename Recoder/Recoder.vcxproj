@@ -66,11 +66,13 @@
   <ItemGroup>
     <ClCompile Include="adc.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="pcm1801.c" />
     <ClCompile Include="usart.c" />
     <ClCompile Include="wch372.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="adc.h" />
+    <ClInclude Include="pcm1801.h" />
     <ClInclude Include="usart.h" />
     <ClInclude Include="wch372.h" />
   </ItemGroup>

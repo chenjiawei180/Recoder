@@ -2,6 +2,7 @@
 #include "usart.h"
 #include "adc.h"
 #include "wch372.h"
+#include "pcm1801.h"
 
 void main(void)
 {
@@ -10,10 +11,11 @@ void main(void)
 	usart_init();
 	InitADC();
 	ch372_init();
+	PCM1801_Init();
 	
 	while (1)
 	{
-		adc_value = GetADCResult(0);
-		uart_printf("ADC value is %d!\r\n", (unsigned int)adc_value);
+		//adc_value = GetADCResult(0);
+		//uart_printf("ADC value is %d!\r\n", (unsigned int)adc_value);
 	}
 }
