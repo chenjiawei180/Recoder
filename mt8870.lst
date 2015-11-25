@@ -1,0 +1,62 @@
+C51 COMPILER V9.00   MT8870                                                                11/25/2015 17:24:18 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MT8870
+OBJECT MODULE PLACED IN mt8870.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Recoder\mt8870.c LARGE BROWSE INCDIR(.\Recoder) DEBUG OBJECTEXTEND PRINT(.\
+                    -mt8870.lst) TABS(2) OBJECT(mt8870.obj)
+
+line level    source
+
+   1          #include "mt8870.h"
+   2          #include "wch372.h"
+   3          
+   4          void mt8870_init(void)
+   5          {
+   6   1        IT1 = 1;  /* ??????????? */
+   7   1        IE1 = 0;  /* ????? */
+   8   1        EX1 = 1;  /* ??CH372?? 外部中断初始化*/
+   9   1        P0M1 = 0X0F; //P0端口设置为输入
+  10   1        P0M0 = 0X00;
+  11   1      }
+  12          
+  13          void exint1() interrupt 2           //(location at 0013H)
+  14          {
+  15   1        unsigned int dtmf_table = 0;
+  16   1        dtmf_table = P0;
+  17   1        dtmf_table &= 0x0f; 
+  18   1        switch (dtmf_table)
+  19   1        {
+  20   2          case 0: wch372_send2byte(0xA2, 0x01, 0x00); break;
+  21   2          case 1: wch372_send2byte(0xA2, 0x01, 0x01); break;
+  22   2          case 2: wch372_send2byte(0xA2, 0x01, 0x02); break;
+  23   2          case 3: wch372_send2byte(0xA2, 0x01, 0x03); break;
+  24   2          case 4: wch372_send2byte(0xA2, 0x01, 0x04); break;
+  25   2          case 5: wch372_send2byte(0xA2, 0x01, 0x05); break;
+  26   2          case 6: wch372_send2byte(0xA2, 0x01, 0x06); break;
+  27   2          case 7: wch372_send2byte(0xA2, 0x01, 0x07); break;
+  28   2          case 8: wch372_send2byte(0xA2, 0x01, 0x08); break;
+  29   2          case 9: wch372_send2byte(0xA2, 0x01, 0x09); break;
+  30   2          case 10: wch372_send2byte(0xA2, 0x01, 0x0a); break;
+  31   2          case 11: wch372_send2byte(0xA2, 0x01, 0x0b); break;
+  32   2          case 12: wch372_send2byte(0xA2, 0x01, 0x0c); break;
+  33   2          case 13: wch372_send2byte(0xA2, 0x01, 0x00); break;
+  34   2          case 14: wch372_send2byte(0xA2, 0x01, 0x00); break;
+  35   2          case 15: wch372_send2byte(0xA2, 0x01, 0x00); break;
+  36   2          default: wch372_send2byte(0xA2, 0x01, 0x00); break;
+  37   2        }
+  38   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    208    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

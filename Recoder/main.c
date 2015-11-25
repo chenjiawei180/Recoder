@@ -3,6 +3,7 @@
 #include "adc.h"
 #include "wch372.h"
 #include "pcm1801.h"
+#include "mt8870.h"
 
 void main(void)
 {
@@ -12,6 +13,7 @@ void main(void)
 	InitADC();
 	ch372_init();
 	PCM1801_Init();
+	mt8870_init();
 	
 	while (1)
 	{

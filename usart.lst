@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   USART                                                                 11/24/2015 18:00:11 PAGE 1   
+C51 COMPILER V9.00   USART                                                                 11/25/2015 17:24:18 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE USART
@@ -62,7 +62,7 @@ line level    source
   52          {
   53   1        while (busy);           //Wait for the completion of the previous data is sent
   54   1        ACC = dat;              //Calculate the even parity bit P (PSW.0)
-C51 COMPILER V9.00   USART                                                                 11/24/2015 18:00:11 PAGE 2   
+C51 COMPILER V9.00   USART                                                                 11/25/2015 17:24:18 PAGE 2   
 
   55   1        if (P)                  //Set the parity bit according to P
   56   1        {

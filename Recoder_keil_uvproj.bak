@@ -385,6 +385,11 @@
               <FileType>1</FileType>
               <FilePath>.\Recoder\wch372.c</FilePath>
             </File>
+            <File>
+              <FileName>pcm1801.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Recoder\pcm1801.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

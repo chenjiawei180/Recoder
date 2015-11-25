@@ -30,6 +30,9 @@
     <ClCompile Include="pcm1801.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="mt8870.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="usart.h">
@@ -42,6 +45,9 @@
       <Filter>源文件</Filter>
     </ClInclude>
     <ClInclude Include="pcm1801.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mt8870.h">
       <Filter>源文件</Filter>
     </ClInclude>
   </ItemGroup>
