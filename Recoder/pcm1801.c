@@ -1,10 +1,14 @@
 #include "pcm1801.h"
 #include "wch372.h"
+#include "usart.h"
 
 uint16_t val = 0;
 uint16_t value = 0;
 uint8_t spi_c = 0;
 
+uint16_t ring_num = 0;
+uint8_t  ring_table = 0;
+uint8_t  ring = 0;
 void spi_isr() interrupt 9 using 1     //SPI interrupt routine 9 (004BH)
 {
 	SPSTAT = SPIF | WCOL;       //clear SPI status
@@ -40,8 +44,8 @@ void spi_isr() interrupt 9 using 1     //SPI interrupt routine 9 (004BH)
 void Init_Timer()
 {
 	TMOD = 0x22;						 //???0,1???2
-	AUXR = AUXR | 0x80;					 //
-	AUXR = AUXR | 0x40;
+	AUXR |= 0x80;					 //
+	AUXR |= 0x40;
 	TH0 = 245;
 	TH1 = 252;
 
@@ -64,7 +68,7 @@ void Init_pca()
 	// 	 ??PCA???
 	CL = 0;
 	CH = 0;
-	CCAPM0 = 0x4d;			// 	PCA??0???16??????
+	CCAPM0 = 0x49;			// 	PCA??0???16??????
 	val = T128KHz;
 	CCAP0L = val;
 	CCAP0H = val >> 8;		//   ??PCA??0
@@ -90,7 +94,13 @@ void PCA_isr() interrupt 7 using 1
 		value = 0;
 		SPDAT = 0x55;                //trigger SPI send
 	}
-
+	ring_num++;
+	if (ring_num > 4000)
+	{
+		ring_table = 1;
+		ring_num = 0;
+		ring = P41;
+	}
 	// SPISS = 1;                  //push high slave SS
 }
 
@@ -111,4 +121,25 @@ void PCM1801_Init()
 	Init_pca();
 	InitSPI();
 	IE2 |= ESPI;
+}
+
+void Ring_process(void)
+{
+	if (ring_table == 1)
+	{
+		ring_table = 0;
+		if (ring == 0)
+		{
+#ifdef DEBUG
+			uart_printf("The ring up !\r\n");
+#endif
+		}
+		else
+		{
+#ifdef DEBUG
+			uart_printf("The ring off !\r\n");
+#endif
+		}
+	}
+
 }

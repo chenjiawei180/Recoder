@@ -6,8 +6,10 @@
 #include<stdarg.h> 
 #include "tpyedef.h"
 
+#define DEBUG
+
 #define FOSC 32768000L      //System frequency
-#define BAUD 9600           //UART baudrate
+#define BAUD 1200           //UART baudrate
 
 /*Define UART parity mode*/
 #define NONE_PARITY     0   //None parity
@@ -18,12 +20,18 @@
 
 #define PARITYBIT NONE_PARITY   //Testing even parity
 
+#define S2RI  0x01          //S2CON.0
+#define S2TI  0x02          //S2CON.1
+#define S2RB8 0x04          //S2CON.2
+#define S2TB8 0x08          //S2CON.3
+
 
 
 extern void usart_init(void);
 extern void SendData(BYTE dat);
 extern void SendString(char *s);
 extern void uart_printf(const char *fmt, ...);
+extern void delay1ms(void);
 
 
 #endif

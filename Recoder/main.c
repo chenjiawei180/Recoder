@@ -17,6 +17,8 @@ void main(void)
 	
 	while (1)
 	{
+		tel_state_process();
+		Ring_process();
 		//adc_value = GetADCResult(0);
 		//uart_printf("ADC value is %d!\r\n", (unsigned int)adc_value);
 	}

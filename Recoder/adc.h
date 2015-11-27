@@ -14,9 +14,10 @@
 #define ADC_SPEEDH  0x40            //140 clocks
 #define ADC_SPEEDHH 0x60            //70 clocks
 
-void InitADC();
+extern void InitADC();
 unsigned char GetADCResult(BYTE ch);
 void Delay(WORD n);
 unsigned char GetADCResult_av(BYTE ch);
+extern void tel_state_process(void);
 
 #endif

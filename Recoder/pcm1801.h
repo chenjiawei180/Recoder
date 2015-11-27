@@ -35,4 +35,7 @@ void InitSPI();
 void Init_Timer();
 void Init_pca();
 extern void PCM1801_Init();
+extern void Ring_process(void);
+
+
 #endif
