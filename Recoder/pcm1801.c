@@ -123,23 +123,3 @@ void PCM1801_Init()
 	IE2 |= ESPI;
 }
 
-void Ring_process(void)
-{
-	if (ring_table == 1)
-	{
-		ring_table = 0;
-		if (ring == 0)
-		{
-#ifdef DEBUG
-			uart_printf("The ring up !\r\n");
-#endif
-		}
-		else
-		{
-#ifdef DEBUG
-			uart_printf("The ring off !\r\n");
-#endif
-		}
-	}
-
-}
