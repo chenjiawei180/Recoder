@@ -30,6 +30,8 @@ sbit L3 = P3 ^ 4;
 sbit T1CLKO = P3 ^ 5;
 sbit dat = P1 ^ 0;
 
+extern uint8_t pc_request_voice_data;
+
 
 void InitSPI();
 void Init_Timer();

@@ -395,6 +395,11 @@
               <FileType>1</FileType>
               <FilePath>.\Recoder\mt8870.c</FilePath>
             </File>
+            <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Recoder\timer.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

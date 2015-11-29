@@ -1,8 +1,11 @@
 #include "wch372.h"
+#include "pcm1801.h"
 
 unsigned char length, i;//定义数据长度和数据位数//
 unsigned char IntStaus;//定义中断状态//
 unsigned char buffer[64];//数据数组//
+
+extern unsigned char re_send_status_to_pc;
 
 /*------------------------------------------------
 中断服务程序
@@ -22,14 +25,35 @@ void wch372_interrupt()  interrupt 0
 			{
 				buffer[i] = ch372_rd_dat_port();//按照获得的数据位数，将数据存入buffer[i]//
 			}		
-
-			ch372_wr_cmd_port(CMD_WR_USB_DATA5);//单片机向ch372写入向usb写入数据的命令//
-			ch372_wr_dat_port(length);//告诉pc数据长度//
-			for(i = 0; i<length; i++)
+			if (length == 7) /*the length of "command for check wire status",and simply use the length for re send the status to PC */
 			{
-				ch372_wr_dat_port(buffer[i]);
+				if (buffer[3] == 0x09)
+				{
+					re_send_status_to_pc = 1;
+				}
+				
+			}
+			if (length == 8)/*the length of "command for start to record the voice",and simply use the length for the flag of start record */
+			{
+				if (buffer[3] == 0x10)
+				{
+					if (buffer[5] == 0x00)
+					{
+						pc_request_voice_data = 0;
+					}
+					if (buffer[5] == 0x01)
+					{
+						pc_request_voice_data = 1;
+					}
+				}		
 			}
 
+			//ch372_wr_cmd_port(CMD_WR_USB_DATA5);//单片机向ch372写入向usb写入数据的命令//
+			//ch372_wr_dat_port(length);//告诉pc数据长度//
+			//for(i = 0; i<length; i++)
+			//{
+			//	ch372_wr_dat_port(buffer[i]);
+			//}
 
 		//pc机验证数据的正确性//
 		//	 wch372_send1byte(0x09,0x01);
@@ -174,29 +198,35 @@ unsigned char ch372_rd_dat_port(void)
 
 void wch372_send1byte(unsigned char function, unsigned char uesrdata)
 {
-	ch372_wr_cmd_port(CMD_WR_USB_DATA5);//单片机向ch372写入向usb写入数据的命令//
-	ch372_wr_dat_port(7);//告诉pc数据长度//
-	ch372_wr_dat_port(0x55);//pc机验证数据的正确性//
-	ch372_wr_dat_port(0x02);
-	ch372_wr_dat_port(0x55);
-	ch372_wr_dat_port(function);
-	ch372_wr_dat_port(uesrdata);
-	ch372_wr_dat_port(function + uesrdata);
-	ch372_wr_dat_port(0x16);
+	if (pc_request_voice_data == 0)
+	{
+		ch372_wr_cmd_port(CMD_WR_USB_DATA5);//单片机向ch372写入向usb写入数据的命令//
+		ch372_wr_dat_port(7);//告诉pc数据长度//
+		ch372_wr_dat_port(0x55);//pc机验证数据的正确性//
+		ch372_wr_dat_port(0x02);
+		ch372_wr_dat_port(0x55);
+		ch372_wr_dat_port(function);
+		ch372_wr_dat_port(uesrdata);
+		ch372_wr_dat_port(function + uesrdata);
+		ch372_wr_dat_port(0x16);
+	}
 }
 
 void wch372_send2byte(unsigned char function, unsigned char uesrdata1, unsigned char uesrdata2)
 {
-	ch372_wr_cmd_port(CMD_WR_USB_DATA5);//单片机向ch372写入向usb写入数据的命令//
-	ch372_wr_dat_port(8);//告诉pc数据长度//
-	ch372_wr_dat_port(0x55);//pc机验证数据的正确性//
-	ch372_wr_dat_port(0x03);
-	ch372_wr_dat_port(0x55);
-	ch372_wr_dat_port(function);
-	ch372_wr_dat_port(uesrdata1);
-	ch372_wr_dat_port(uesrdata2);
-	ch372_wr_dat_port(function + uesrdata1 + uesrdata2);
-	ch372_wr_dat_port(0x16);
+	if (pc_request_voice_data == 0)
+	{
+		ch372_wr_cmd_port(CMD_WR_USB_DATA5);//单片机向ch372写入向usb写入数据的命令//
+		ch372_wr_dat_port(8);//告诉pc数据长度//
+		ch372_wr_dat_port(0x55);//pc机验证数据的正确性//
+		ch372_wr_dat_port(0x03);
+		ch372_wr_dat_port(0x55);
+		ch372_wr_dat_port(function);
+		ch372_wr_dat_port(uesrdata1);
+		ch372_wr_dat_port(uesrdata2);
+		ch372_wr_dat_port(function + uesrdata1 + uesrdata2);
+		ch372_wr_dat_port(0x16);
+	}
 }
 
 void delay50ms()

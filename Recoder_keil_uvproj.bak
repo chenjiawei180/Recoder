@@ -390,6 +390,11 @@
               <FileType>1</FileType>
               <FilePath>.\Recoder\pcm1801.c</FilePath>
             </File>
+            <File>
+              <FileName>mt8870.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Recoder\mt8870.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

@@ -68,6 +68,7 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="mt8870.c" />
     <ClCompile Include="pcm1801.c" />
+    <ClCompile Include="timer.c" />
     <ClCompile Include="usart.c" />
     <ClCompile Include="wch372.c" />
   </ItemGroup>
@@ -75,6 +76,7 @@
     <ClInclude Include="adc.h" />
     <ClInclude Include="mt8870.h" />
     <ClInclude Include="pcm1801.h" />
+    <ClInclude Include="timer.h" />
     <ClInclude Include="usart.h" />
     <ClInclude Include="wch372.h" />
   </ItemGroup>

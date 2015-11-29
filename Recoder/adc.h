@@ -14,6 +14,7 @@
 #define ADC_SPEEDH  0x40            //140 clocks
 #define ADC_SPEEDHH 0x60            //70 clocks
 
+
 extern void InitADC();
 unsigned char GetADCResult(BYTE ch);
 void Delay(WORD n);

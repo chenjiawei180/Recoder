@@ -2,9 +2,11 @@
 #define __WCH372_H
 
 #include "STC12C5A60S2.H"
+#include "timer.h"
 
 #define CH372_CMD_PORT P2
 #define CH372_DAT_PORT P2
+
 
 sbit CH372_A0 = P4 ^ 3;
 sbit CH372_INT = P3 ^ 2;

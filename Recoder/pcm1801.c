@@ -6,9 +6,8 @@ uint16_t val = 0;
 uint16_t value = 0;
 uint8_t spi_c = 0;
 
-uint16_t ring_num = 0;
-uint8_t  ring_table = 0;
-uint8_t  ring = 0;
+uint8_t pc_request_voice_data = 0;
+
 void spi_isr() interrupt 9 using 1     //SPI interrupt routine 9 (004BH)
 {
 	SPSTAT = SPIF | WCOL;       //clear SPI status
@@ -18,11 +17,6 @@ void spi_isr() interrupt 9 using 1     //SPI interrupt routine 9 (004BH)
 	if (spi_c == 0)	// 第一次读取数据
 	{
 		value |= SPDAT << 8;
-
-//		ch372_wr_cmd_port(CMD_WR_USB_DATA7);//单片机向ch372写入向usb写入数据的命令//
-//		ch372_wr_dat_port(2);//告诉pc数据长度//
-//		ch372_wr_dat_port(value >> 8);//pc机验证数据的正确性//
-//		ch372_wr_dat_port(value);
 	}
 #else                           //for salve (receive SPI data from master and
 	SPDAT = SPDAT;              //           send previous SPI data to master)
@@ -33,23 +27,26 @@ void spi_isr() interrupt 9 using 1     //SPI interrupt routine 9 (004BH)
 		value |= SPDAT;
 		SPDAT = 0x55;
 		spi_c = 0;	
-		//ch372_wr_cmd_port(CMD_WR_USB_DATA7);//单片机向ch372写入向usb写入数据的命令//
-		//ch372_wr_dat_port(2);//告诉pc数据长度//
-		//ch372_wr_dat_port(value >> 8);//pc机验证数据的正确性//
-		//ch372_wr_dat_port(value);
+		if (pc_request_voice_data == 1)
+		{
+			ch372_wr_cmd_port(CMD_WR_USB_DATA7);//单片机向ch372写入向usb写入数据的命令//
+			ch372_wr_dat_port(2);//告诉pc数据长度//
+			ch372_wr_dat_port(value >> 8);//pc机验证数据的正确性//
+			ch372_wr_dat_port(value);
+		}
 	}
 }
 
 
 void Init_Timer()
 {
-	TMOD = 0x22;						 //???0,1???2
-	AUXR |= 0x80;					 //
+	TMOD |= 0x20;						 //???0,1???2
+	//AUXR |= 0x80;					 //
 	AUXR |= 0x40;
-	TH0 = 245;
+	//TH0 = 245;
 	TH1 = 252;
 
-	WAKE_CLKO = WAKE_CLKO | 0X03;		 //
+	WAKE_CLKO = WAKE_CLKO | 0X02;		 //
 	EA = 1;			//?????
 
 	//???????

@@ -4,6 +4,7 @@
 "adc.obj",
 "wch372.obj",
 "pcm1801.obj",
-"mt8870.obj" 
+"mt8870.obj",
+"timer.obj" 
 TO "Recoder_keil" 
 RAMSIZE(256) 

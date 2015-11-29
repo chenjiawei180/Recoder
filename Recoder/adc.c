@@ -3,6 +3,8 @@
 #include "wch372.h"
 #include "pcm1801.h"
 #include "wch372.h"
+
+
 uint16_t sum_adc_value = 0;
 uint8_t  tel_state = 2;
 unsigned char pre_adc_temp= 0;
@@ -12,6 +14,7 @@ unsigned char PreRingDetectFlag = 0;
 unsigned char RingUpFlag = 0;
 unsigned char tel_status_count = 0;
 unsigned char tel_status_1_flag =0;
+unsigned char re_send_status_to_pc = 0;
 void InitADC()
 {
 	P1ASF = 0x03;                   //Open 8 channels ADC function
@@ -159,11 +162,22 @@ void tel_state_process(void) //1 挂机   2无线路  3摘机
 		{
 		//uart_printf("pre_tel_state =%d \r\n", (unsigned int)pre_tel_state);
 		//uart_printf("tel_state =%d \r\n", (unsigned int)tel_state);
-		if ((tel_state != pre_tel_state)||((tel_state ==2) &&(pre_tel_state ==2)))//||(RingDetectFlag==0))
+			if ((tel_state != pre_tel_state) || ((tel_state == 2) && (pre_tel_state == 2))||(re_send_status_to_pc ==1))//||(RingDetectFlag==0))
 		{
 			//if(tel_status_count >=3)
 			{
-			wch372_send2byte(0xA1, 0x01, tel_state);
+				if ((tel_status_1_flag>10) && (re_send_status_to_pc == 1))
+				{
+					wch372_send2byte(0xA1, 0x01, 0x05); //make sure shut down the phone truely when PC request re send the phone status
+				}
+				else
+				{
+					wch372_send2byte(0xA1, 0x01, tel_state);
+				}
+				if (re_send_status_to_pc == 1)
+				{
+					re_send_status_to_pc = 0;
+				}
 			
 #ifdef DEBUG
 			if(tel_state ==1)
@@ -179,9 +193,18 @@ void tel_state_process(void) //1 挂机   2无线路  3摘机
 		 }
      
 		}
-		if((tel_state ==1)&&(pre_tel_state==1)&&(RingDetectFlag ==0) &&(RingDetectFlag ==0)&&(tel_status_1_flag<=2))
+		if((tel_state ==1)&&(pre_tel_state==1)&&(RingDetectFlag ==0) &&(RingDetectFlag ==0)&&(tel_status_1_flag<=20))
 		{
-			wch372_send2byte(0xA1, 0x01, tel_state);
+			
+			if (tel_status_1_flag>10)
+			{
+				pc_request_voice_data = 0;
+				wch372_send2byte(0xA1, 0x01, 0x05); //make sure shut down the phone truely
+			}
+			else
+			{
+				wch372_send2byte(0xA1, 0x01, tel_state);
+			}
 			uart_printf("the telephone is offline \r\n");
 			tel_status_1_flag ++;
 			//ch372_init();
