@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   ADC                                                                   11/28/2015 19:12:37 PAGE 1   
+C51 COMPILER V9.00   ADC                                                                   11/28/2015 22:06:00 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE ADC
@@ -12,106 +12,106 @@ line level    source
    2          #include "usart.h"
    3          #include "wch372.h"
    4          #include "pcm1801.h"
-   5          uint16_t sum_adc_value = 0;
-   6          uint8_t  tel_state = 2;
-   7          unsigned char pre_adc_temp= 0;
-   8          uint8_t  pre_tel_state = 2;
-   9          unsigned char RingDetectFlag = 0;
-  10          unsigned char PreRingDetectFlag = 0;
-  11          unsigned char RingUpFlag = 0;
-  12          unsigned char tel_status_count = 0;
-  13          void InitADC()
-  14          {
-  15   1        P1ASF = 0x03;                   //Open 8 channels ADC function
-  16   1        ADC_RES = 0;                    //Clear previous result
-  17   1        ADC_CONTR = ADC_POWER | ADC_SPEEDLL;
-  18   1        Delay(2);                       //ADC power-on and delay
-  19   1      }
-  20          
-  21          unsigned char GetADCResult(BYTE ch)
-  22          {
-  23   1        ADC_CONTR = ADC_POWER | ADC_SPEEDLL | ch | ADC_START;
-  24   1        _nop_();                        //Must wait before inquiry
-  25   1        _nop_();
-  26   1        _nop_();
+   5          #include "wch372.h"
+   6          uint16_t sum_adc_value = 0;
+   7          uint8_t  tel_state = 2;
+   8          unsigned char pre_adc_temp= 0;
+   9          uint8_t  pre_tel_state = 2;
+  10          unsigned char RingDetectFlag = 0;
+  11          unsigned char PreRingDetectFlag = 0;
+  12          unsigned char RingUpFlag = 0;
+  13          unsigned char tel_status_count = 0;
+  14          unsigned char tel_status_1_flag =0;
+  15          void InitADC()
+  16          {
+  17   1        P1ASF = 0x03;                   //Open 8 channels ADC function
+  18   1        ADC_RES = 0;                    //Clear previous result
+  19   1        ADC_CONTR = ADC_POWER | ADC_SPEEDLL;
+  20   1        Delay(2);                       //ADC power-on and delay
+  21   1      }
+  22          
+  23          unsigned char GetADCResult(BYTE ch)
+  24          {
+  25   1        ADC_CONTR = ADC_POWER | ADC_SPEEDLL | ch | ADC_START;
+  26   1        _nop_();                        //Must wait before inquiry
   27   1        _nop_();
-  28   1        while (!(ADC_CONTR & ADC_FLAG));//Wait complete flag
-  29   1        ADC_CONTR &= ~ADC_FLAG;         //Close ADC
-  30   1      
-  31   1        return ADC_RES;                 //Return ADC result
-  32   1      }
-  33          
-  34          void Delay(WORD n)
-  35          {
-  36   1        WORD x;
-  37   1      
-  38   1        while (n--)
-  39   1        {
-  40   2          x = 5000;
-  41   2          while (x--);
-  42   2        }
-  43   1      }
-  44          
-  45          unsigned char GetADCResult_av(BYTE ch)
-  46          {
-  47   1        unsigned char temp = 0, value = 0, i = 0;
-  48   1        unsigned char RingupLowlevel = 0;
-  49   1        unsigned char RingUpFlagTime = 0;
-  50   1        for (i = 0; i<16; i++)
-  51   1        {
-  52   2          value = GetADCResult(ch);
-  53   2      #ifdef DEBUG1
-                  uart_printf("value=%d \r\n", (unsigned int)value);
-C51 COMPILER V9.00   ADC                                                                   11/28/2015 19:12:37 PAGE 2   
+  28   1        _nop_();
+  29   1        _nop_();
+  30   1        while (!(ADC_CONTR & ADC_FLAG));//Wait complete flag
+  31   1        ADC_CONTR &= ~ADC_FLAG;         //Close ADC
+  32   1      
+  33   1        return ADC_RES;                 //Return ADC result
+  34   1      }
+  35          
+  36          void Delay(WORD n)
+  37          {
+  38   1        WORD x;
+  39   1      
+  40   1        while (n--)
+  41   1        {
+  42   2          x = 5000;
+  43   2          while (x--);
+  44   2        }
+  45   1      }
+  46          
+  47          unsigned char GetADCResult_av(BYTE ch)
+  48          {
+  49   1        unsigned char temp = 0, value = 0, i = 0;
+  50   1        unsigned char RingupLowlevel = 0;
+  51   1        unsigned char RingUpFlagTime = 0;
+  52   1        for (i = 0; i<16; i++)
+  53   1        {
+  54   2          value = GetADCResult(ch);
+C51 COMPILER V9.00   ADC                                                                   11/28/2015 22:06:00 PAGE 2   
 
+  55   2      #ifdef DEBUG1
+                  uart_printf("value=%d \r\n", (unsigned int)value);
               #endif
-  56   2      //sjz start
-  57   2          if (value < 5)
-  58   2          {
-  59   3            RingupLowlevel = 1;
-  60   3          }
-  61   2          else if ((RingupLowlevel == 1) && (value >50))
-  62   2          {
-  63   3            RingUpFlagTime++;
-  64   3            RingupLowlevel = 0;
-  65   3          }
-  66   2          if (RingUpFlagTime >= 2)
-  67   2          {
-  68   3            RingUpFlag = 1;
-  69   3          }
-  70   2          else
-  71   2          {
-  72   3            RingUpFlag = 0;
-  73   3          }
-  74   2      //sjz end
-  75   2          sum_adc_value += value;
-  76   2        }
-  77   1      #ifdef DEBUG1
+  58   2      //sjz start
+  59   2          if (value < 5)
+  60   2          {
+  61   3            RingupLowlevel = 1;
+  62   3          }
+  63   2          else if ((RingupLowlevel == 1) && (value >50))
+  64   2          {
+  65   3            RingUpFlagTime++;
+  66   3            RingupLowlevel = 0;
+  67   3          }
+  68   2          if (RingUpFlagTime >= 2)
+  69   2          {
+  70   3            RingUpFlag = 1;
+  71   3          }
+  72   2          else
+  73   2          {
+  74   3            RingUpFlag = 0;
+  75   3          }
+  76   2      //sjz end
+  77   2          sum_adc_value += value;
+  78   2        }
+  79   1      #ifdef DEBUG1
                 uart_printf("RingUpFlag=%d \r\n", (unsigned int)RingUpFlag);
               #endif
-  80   1        temp = (unsigned char)(sum_adc_value >> 4);
-  81   1        sum_adc_value = 0;
-  82   1        return temp;
-  83   1      }
-  84          
-  85          
-  86          void tel_state_process(void) //1 挂机   2无线路  3摘机  
-  87          {
-  88   1        unsigned char adc_temp = 0;
-  89   1        adc_temp = GetADCResult_av(0);
-  90   1        //uart_printf("pre_adc_temp =%d \r\n", (unsigned int)pre_adc_temp);
-  91   1        //uart_printf("adc_temp =%d \r\n", (unsigned int)adc_temp);
-  92   1      //if (tel_state != pre_tel_state)
-  93   1        //  if (((pre_adc_temp > 200) && (adc_temp<40) && (pre_tel_state == 1) && (tel_state == 1)) || 
-  94   1        //    ((pre_adc_temp <40) && (adc_temp>200) && (pre_tel_state == 3) && (tel_state == 3)))
-  95   1          if (((pre_adc_temp > 200) && (adc_temp<40)) || 
-  96   1        ((pre_adc_temp <40) && (adc_temp>200)))
-  97   1        {
-  98   2          RingDetectFlag = 1;
-  99   2        }
- 100   1        //uart_printf("RingDetectFlag =%d \r\n", (unsigned int)RingDetectFlag);
- 101   1        //if(RingDetectFlag == 1){
- 102   1        if(P41 == 1){
+  82   1        temp = (unsigned char)(sum_adc_value >> 4);
+  83   1        sum_adc_value = 0;
+  84   1        return temp;
+  85   1      }
+  86          
+  87          
+  88          void tel_state_process(void) //1 挂机   2无线路  3摘机  
+  89          {
+  90   1        unsigned char adc_temp = 0;
+  91   1        adc_temp = GetADCResult_av(0);
+  92   1        //uart_printf("pre_adc_temp =%d \r\n", (unsigned int)pre_adc_temp);
+  93   1        //uart_printf("adc_temp =%d \r\n", (unsigned int)adc_temp);
+  94   1          if (((pre_adc_temp > 200) && (adc_temp<40)) ||((pre_adc_temp <40) && (adc_temp>200)))
+  95   1        {
+  96   2          RingDetectFlag = 1;
+  97   2          tel_status_1_flag = 0;
+  98   2        }
+  99   1        //uart_printf("RingDetectFlag =%d \r\n", (unsigned int)RingDetectFlag);
+ 100   1        //if(RingDetectFlag == 1){
+ 101   1        if(P41 == 1){
+ 102   2          
  103   2        if((adc_temp > 200)&&(pre_adc_temp>180))
  104   2        {
  105   3          tel_state = 1;
@@ -120,107 +120,100 @@ line level    source
  108   3        }
  109   2        else if (adc_temp < 3)
  110   2        {
- 111   3          if ((pre_tel_state !=1) && (pre_tel_state != 3))
- 112   3          {
- 113   4            tel_state = 2;
- 114   4          }
- 115   3          else
- 116   3          {
-C51 COMPILER V9.00   ADC                                                                   11/28/2015 19:12:37 PAGE 3   
+ 111   3          tel_status_1_flag= 0;
+ 112   3          if ((pre_tel_state !=1) && (pre_tel_state != 3))
+ 113   3          {
+ 114   4            tel_state = 2;
+ 115   4          }
+ 116   3          else
+C51 COMPILER V9.00   ADC                                                                   11/28/2015 22:06:00 PAGE 3   
 
- 117   4            RingDetectFlag = 1;
- 118   4          }
- 119   3          //pre_adc_temp = adc_temp;
- 120   3          tel_status_count++;
- 121   3        }
- 122   2        else if ((adc_temp >20 && adc_temp < 40)&&(pre_adc_temp>5))
- 123   2        {
- 124   3          tel_state = 3;
- 125   3          
- 126   3          tel_status_count++;
- 127   3        }
- 128   2        pre_adc_temp = adc_temp;
- 129   2      //}
- 130   2      }
- 131   1        if(P41 ==0)
- 132   1        {
- 133   2          RingDetectFlag = 1;
- 134   2        }
- 135   1        if((RingDetectFlag == 1))
- 136   1        {
- 137   2          wch372_send2byte(0xA1, 0x01, 0x04);
- 138   2          PreRingDetectFlag= RingDetectFlag;
- 139   2          if(P41 ==1)
- 140   2            RingDetectFlag = 0;
- 141   2      #ifdef DEBUG
- 142   2          uart_printf("the telephone is Ring \r\n");
- 143   2      #endif
- 144   2        }
- 145   1        else
- 146   1        {
- 147   2      
- 148   2          if(P41 == 1)
- 149   2          {
- 150   3          //uart_printf("pre_tel_state =%d \r\n", (unsigned int)pre_tel_state);
- 151   3          //uart_printf("tel_state =%d \r\n", (unsigned int)tel_state);
- 152   3          if ((tel_state != pre_tel_state)||((tel_state ==2) &&(pre_tel_state ==2))||(RingDetectFlag==0))
- 153   3          {
- 154   4            //if(tel_status_count >=3)
- 155   4            {
- 156   5            wch372_send2byte(0xA1, 0x01, tel_state);
- 157   5            
- 158   5      #ifdef DEBUG
- 159   5            if(tel_state ==1)
- 160   5               uart_printf("the telephone is offline \r\n");
- 161   5            else if (tel_state == 2)
- 162   5              uart_printf("no telephone \r\n");
- 163   5            else if (tel_state == 3)
- 164   5              uart_printf("the telephone is online \r\n");
- 165   5      #endif
- 166   5           }
- 167   4           
- 168   4          }
- 169   3         }
- 170   2          pre_tel_state = tel_state;
- 171   2        }
- 172   1      #if 0
-                else if (adc_temp > 200 && tel_state != 1 && P41 == 1 && RingUpFlag !=1)
-                {
-                  wch372_send2byte(0xA1, 0x01, 0x01);
-                  tel_state = 1;
-                  pre_tel_state = tel_state;
-              #ifdef DEBUG
-C51 COMPILER V9.00   ADC                                                                   11/28/2015 19:12:37 PAGE 4   
+ 117   3          {
+ 118   4            RingDetectFlag = 1;
+ 119   4          }
+ 120   3          //pre_adc_temp = adc_temp;
+ 121   3          tel_status_count++;
+ 122   3        }
+ 123   2        else if ((adc_temp >20 && adc_temp < 40)&&(pre_adc_temp>5))
+ 124   2        {
+ 125   3          tel_state = 3;
+ 126   3          tel_status_1_flag=0;
+ 127   3          tel_status_count++;
+ 128   3        }
+ 129   2        pre_adc_temp = adc_temp;
+ 130   2      //}
+ 131   2      }
+ 132   1        if(P41 ==0)
+ 133   1        {
+ 134   2          tel_status_1_flag = 0;
+ 135   2          RingDetectFlag = 1;
+ 136   2        }
+ 137   1        else
+ 138   1        {
+ 139   2          RingDetectFlag = 0;
+ 140   2          PreRingDetectFlag = 0;
+ 141   2        }
+ 142   1        //uart_printf("RingDetectFlag =%d \r\n",(unsigned int)RingDetectFlag);
+ 143   1        //uart_printf("PreRingDetectFlag =%d \r\n",(unsigned int)PreRingDetectFlag);
+ 144   1        if((RingDetectFlag == 1))
+ 145   1        {
+ 146   2          if(PreRingDetectFlag != RingDetectFlag)
+ 147   2          {
+ 148   3      #ifdef DEBUG
+ 149   3          uart_printf("the telephone is Ring \r\n");
+ 150   3      #endif
+ 151   3            wch372_send2byte(0xA1, 0x01, 0x04);
+ 152   3          }
+ 153   2          PreRingDetectFlag = RingDetectFlag;
+ 154   2        }
+ 155   1        else
+ 156   1        {
+ 157   2      
+ 158   2          if(P41 == 1)
+ 159   2          {
+ 160   3          //uart_printf("pre_tel_state =%d \r\n", (unsigned int)pre_tel_state);
+ 161   3          //uart_printf("tel_state =%d \r\n", (unsigned int)tel_state);
+ 162   3          if ((tel_state != pre_tel_state)||((tel_state ==2) &&(pre_tel_state ==2)))//||(RingDetectFlag==0))
+ 163   3          {
+ 164   4            //if(tel_status_count >=3)
+ 165   4            {
+ 166   5            wch372_send2byte(0xA1, 0x01, tel_state);
+ 167   5            
+ 168   5      #ifdef DEBUG
+ 169   5            if(tel_state ==1)
+ 170   5            {
+ 171   6               uart_printf("the telephone is offline \r\n");
+ 172   6              //ch372_init();
+ 173   6            }
+ 174   5            else if (tel_state == 2)
+ 175   5              uart_printf("no telephone \r\n");
+ 176   5            else if (tel_state == 3)
+ 177   5              uart_printf("the telephone is online \r\n");
+ 178   5      #endif
+C51 COMPILER V9.00   ADC                                                                   11/28/2015 22:06:00 PAGE 4   
 
-                  uart_printf("the telephone is offline \r\n");
-              #endif
-                }
-                else if (adc_temp < 10 && tel_state != 2 && P41 == 1 && RingUpFlag != 1)
-                {
-                  wch372_send2byte(0xA1, 0x01, 0x02);
-                  tel_state = 2;
-                  pre_tel_state = tel_state;
-              #ifdef DEBUG
-                   uart_printf("no telephone \r\n");
-              #endif
-                }
-                else if (adc_temp >20 && adc_temp < 40 && tel_state != 3 && P41 == 1 && RingUpFlag != 1)
-                {
-                  wch372_send2byte(0xA1, 0x01, 0x03);
-                  tel_state = 3;
-                  pre_tel_state = tel_state;
-              #ifdef DEBUG
-                  uart_printf("the telephone is online \r\n");
-              #endif
-                }
-              #endif
- 201   1      }
+ 179   5           }
+ 180   4           
+ 181   4          }
+ 182   3          if((tel_state ==1)&&(pre_tel_state==1)&&(RingDetectFlag ==0) &&(RingDetectFlag ==0)&&(tel_status_1_flag<
+             -=2))
+ 183   3          {
+ 184   4            wch372_send2byte(0xA1, 0x01, tel_state);
+ 185   4            uart_printf("the telephone is offline \r\n");
+ 186   4            tel_status_1_flag ++;
+ 187   4            //ch372_init();
+ 188   4          }
+ 189   3         }
+ 190   2         pre_tel_state = tel_state;
+ 191   2         
+ 192   2        }
+ 193   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    444    ----
+   CODE SIZE        =    530    ----
    CONSTANT SIZE    =     96    ----
-   XDATA SIZE       =      9       1
+   XDATA SIZE       =     10       1
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

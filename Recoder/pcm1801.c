@@ -19,10 +19,10 @@ void spi_isr() interrupt 9 using 1     //SPI interrupt routine 9 (004BH)
 	{
 		value |= SPDAT << 8;
 
-		ch372_wr_cmd_port(CMD_WR_USB_DATA7);//单片机向ch372写入向usb写入数据的命令//
-		ch372_wr_dat_port(2);//告诉pc数据长度//
-		ch372_wr_dat_port(value >> 8);//pc机验证数据的正确性//
-		ch372_wr_dat_port(value);
+//		ch372_wr_cmd_port(CMD_WR_USB_DATA7);//单片机向ch372写入向usb写入数据的命令//
+//		ch372_wr_dat_port(2);//告诉pc数据长度//
+//		ch372_wr_dat_port(value >> 8);//pc机验证数据的正确性//
+//		ch372_wr_dat_port(value);
 	}
 #else                           //for salve (receive SPI data from master and
 	SPDAT = SPDAT;              //           send previous SPI data to master)
@@ -93,13 +93,6 @@ void PCA_isr() interrupt 7 using 1
 		spi_c = 1;
 		value = 0;
 		SPDAT = 0x55;                //trigger SPI send
-	}
-	ring_num++;
-	if (ring_num > 4000)
-	{
-		ring_table = 1;
-		ring_num = 0;
-		ring = P41;
 	}
 	// SPISS = 1;                  //push high slave SS
 }

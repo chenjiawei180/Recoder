@@ -2,6 +2,7 @@
 #include "usart.h"
 #include "wch372.h"
 #include "pcm1801.h"
+#include "wch372.h"
 uint16_t sum_adc_value = 0;
 uint8_t  tel_state = 2;
 unsigned char pre_adc_temp= 0;
@@ -10,6 +11,7 @@ unsigned char RingDetectFlag = 0;
 unsigned char PreRingDetectFlag = 0;
 unsigned char RingUpFlag = 0;
 unsigned char tel_status_count = 0;
+unsigned char tel_status_1_flag =0;
 void InitADC()
 {
 	P1ASF = 0x03;                   //Open 8 channels ADC function
@@ -89,17 +91,15 @@ void tel_state_process(void) //1 挂机   2无线路  3摘机
 	adc_temp = GetADCResult_av(0);
 	//uart_printf("pre_adc_temp =%d \r\n", (unsigned int)pre_adc_temp);
 	//uart_printf("adc_temp =%d \r\n", (unsigned int)adc_temp);
-//if (tel_state != pre_tel_state)
-	//	if (((pre_adc_temp > 200) && (adc_temp<40) && (pre_tel_state == 1) && (tel_state == 1)) || 
-	//		((pre_adc_temp <40) && (adc_temp>200) && (pre_tel_state == 3) && (tel_state == 3)))
-		if (((pre_adc_temp > 200) && (adc_temp<40)) || 
-	((pre_adc_temp <40) && (adc_temp>200)))
+		if (((pre_adc_temp > 200) && (adc_temp<40)) ||((pre_adc_temp <40) && (adc_temp>200)))
 	{
 		RingDetectFlag = 1;
+		tel_status_1_flag = 0;
 	}
 	//uart_printf("RingDetectFlag =%d \r\n", (unsigned int)RingDetectFlag);
 	//if(RingDetectFlag == 1){
 	if(P41 == 1){
+		
 	if((adc_temp > 200)&&(pre_adc_temp>180))
 	{
 		tel_state = 1;
@@ -108,6 +108,7 @@ void tel_state_process(void) //1 挂机   2无线路  3摘机
 	}
 	else if (adc_temp < 3)
 	{
+		tel_status_1_flag= 0;
 		if ((pre_tel_state !=1) && (pre_tel_state != 3))
 		{
 			tel_state = 2;
@@ -122,7 +123,7 @@ void tel_state_process(void) //1 挂机   2无线路  3摘机
 	else if ((adc_temp >20 && adc_temp < 40)&&(pre_adc_temp>5))
 	{
 		tel_state = 3;
-		
+		tel_status_1_flag=0;
 		tel_status_count++;
 	}
 	pre_adc_temp = adc_temp;
@@ -130,16 +131,26 @@ void tel_state_process(void) //1 挂机   2无线路  3摘机
 }
 	if(P41 ==0)
 	{
+		tel_status_1_flag = 0;
 		RingDetectFlag = 1;
 	}
+	else
+	{
+		RingDetectFlag = 0;
+		PreRingDetectFlag = 0;
+	}
+	//uart_printf("RingDetectFlag =%d \r\n",(unsigned int)RingDetectFlag);
+	//uart_printf("PreRingDetectFlag =%d \r\n",(unsigned int)PreRingDetectFlag);
 	if((RingDetectFlag == 1))
 	{
-		wch372_send2byte(0xA1, 0x01, 0x04);
-		if(P41 ==1)
-		  RingDetectFlag = 0;
+		if(PreRingDetectFlag != RingDetectFlag)
+		{
 #ifdef DEBUG
 		uart_printf("the telephone is Ring \r\n");
 #endif
+		  wch372_send2byte(0xA1, 0x01, 0x04);
+		}
+		PreRingDetectFlag = RingDetectFlag;
 	}
 	else
 	{
@@ -148,7 +159,7 @@ void tel_state_process(void) //1 挂机   2无线路  3摘机
 		{
 		//uart_printf("pre_tel_state =%d \r\n", (unsigned int)pre_tel_state);
 		//uart_printf("tel_state =%d \r\n", (unsigned int)tel_state);
-		if ((tel_state != pre_tel_state)||((tel_state ==2) &&(pre_tel_state ==2))||(RingDetectFlag==0))
+		if ((tel_state != pre_tel_state)||((tel_state ==2) &&(pre_tel_state ==2)))//||(RingDetectFlag==0))
 		{
 			//if(tel_status_count >=3)
 			{
@@ -156,7 +167,10 @@ void tel_state_process(void) //1 挂机   2无线路  3摘机
 			
 #ifdef DEBUG
 			if(tel_state ==1)
+			{
 			   uart_printf("the telephone is offline \r\n");
+				//ch372_init();
+			}
 			else if (tel_state == 2)
 				uart_printf("no telephone \r\n");
 			else if (tel_state == 3)
@@ -165,36 +179,15 @@ void tel_state_process(void) //1 挂机   2无线路  3摘机
 		 }
      
 		}
+		if((tel_state ==1)&&(pre_tel_state==1)&&(RingDetectFlag ==0) &&(RingDetectFlag ==0)&&(tel_status_1_flag<=2))
+		{
+			wch372_send2byte(0xA1, 0x01, tel_state);
+			uart_printf("the telephone is offline \r\n");
+			tel_status_1_flag ++;
+			//ch372_init();
+		}
 	 }
-		pre_tel_state = tel_state;
+	 pre_tel_state = tel_state;
+	 
 	}
-#if 0
-	else if (adc_temp > 200 && tel_state != 1 && P41 == 1 && RingUpFlag !=1)
-	{
-		wch372_send2byte(0xA1, 0x01, 0x01);
-		tel_state = 1;
-		pre_tel_state = tel_state;
-#ifdef DEBUG
-		uart_printf("the telephone is offline \r\n");
-#endif
-	}
-	else if (adc_temp < 10 && tel_state != 2 && P41 == 1 && RingUpFlag != 1)
-	{
-		wch372_send2byte(0xA1, 0x01, 0x02);
-		tel_state = 2;
-		pre_tel_state = tel_state;
-#ifdef DEBUG
-	   uart_printf("no telephone \r\n");
-#endif
-	}
-	else if (adc_temp >20 && adc_temp < 40 && tel_state != 3 && P41 == 1 && RingUpFlag != 1)
-	{
-		wch372_send2byte(0xA1, 0x01, 0x03);
-		tel_state = 3;
-		pre_tel_state = tel_state;
-#ifdef DEBUG
-		uart_printf("the telephone is online \r\n");
-#endif
-	}
-#endif
 }
