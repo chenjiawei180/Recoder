@@ -94,25 +94,29 @@ void tel_state_process(void) //1 挂机   2无线路  3摘机
 	adc_temp = GetADCResult_av(0);
 	//uart_printf("pre_adc_temp =%d \r\n", (unsigned int)pre_adc_temp);
 	//uart_printf("adc_temp =%d \r\n", (unsigned int)adc_temp);
-		if (((pre_adc_temp > 200) && (adc_temp<40)) ||((pre_adc_temp <40) && (adc_temp>200)))
+		if (((pre_adc_temp > 175) && (adc_temp<40)) ||((pre_adc_temp <40) && (adc_temp>175)))
 	{
 		RingDetectFlag = 1;
 		tel_status_1_flag = 0;
 	}
 	//uart_printf("RingDetectFlag =%d \r\n", (unsigned int)RingDetectFlag);
 	//if(RingDetectFlag == 1){
+	// uart_printf("P41 =%d \r\n", (unsigned int)P41);		
 	if(P41 == 1){
-		
-	if((adc_temp > 200)&&(pre_adc_temp>180))
+       //uart_printf("pre_tel_state =%d \r\n", (unsigned int)pre_tel_state);		
+	//uart_printf("pre_adc_temp =%d \r\n", (unsigned int)pre_adc_temp);
+	//uart_printf("adc_temp =%d \r\n", (unsigned int)adc_temp);
+	   
+	if((adc_temp > 180)&&(pre_adc_temp>170))
 	{
 		tel_state = 1;
 		//pre_adc_temp = adc_temp;
 		tel_status_count++;
 	}
-	else if (adc_temp < 3)
+	else if (adc_temp < 135)
 	{
 		tel_status_1_flag= 0;
-		if ((pre_tel_state !=1) && (pre_tel_state != 3))
+		if ((pre_tel_state !=1) )
 		{
 			tel_state = 2;
 		}
@@ -123,7 +127,7 @@ void tel_state_process(void) //1 挂机   2无线路  3摘机
 		//pre_adc_temp = adc_temp;
 		tel_status_count++;
 	}
-	else if ((adc_temp >20 && adc_temp < 40)&&(pre_adc_temp>5))
+	else if ((adc_temp >=135 && adc_temp < 152)&&(pre_adc_temp>132))
 	{
 		tel_state = 3;
 		tel_status_1_flag=0;

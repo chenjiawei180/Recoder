@@ -6,7 +6,7 @@
 #include<stdarg.h> 
 #include "tpyedef.h"
 
-#define DEBUG
+#undef DEBUG
 
 #define FOSC 32768000L      //System frequency
 #define BAUD 1200           //UART baudrate
